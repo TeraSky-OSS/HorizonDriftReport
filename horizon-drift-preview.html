@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizon Drift Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy-900: #050c18;
+  --navy-800: #08111f;
+  --navy-700: #0c1928;
+  --navy-600: #132236;
+  --glass: rgba(12, 25, 40, 0.65);
+  --glass-hi: rgba(20, 35, 58, 0.8);
+  --border: rgba(255,255,255,0.06);
+  --border-hi: rgba(255,255,255,0.12);
+  --tx: #ddeeff;
+  --tx2: #6b90b8;
+  --tx3: #2d4a68;
+  --green: #05e898;
+  --green-bg: rgba(5,232,152,0.08);
+  --green-bd: rgba(5,232,152,0.18);
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.08);
+  --amber-bd: rgba(245,158,11,0.2);
+  --blue: #60a5fa;
+  --blue-bg: rgba(96,165,250,0.08);
+  --blue-bd: rgba(96,165,250,0.15);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body {
+  background: var(--navy-900);
+  color: var(--tx);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 90% 60% at 0% -5%, rgba(10,35,90,0.7) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 105%, rgba(2,60,45,0.3) 0%, transparent 55%);
+}
+
+/* HEADER */
+header {
+  position: sticky; top: 0; z-index: 50;
+  height: 56px;
+  background: rgba(5,12,24,0.82);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 32px; gap: 14px;
+}
+.logo {
+  width: 28px; height: 28px; flex-shrink: 0;
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 12px; color: #fff;
+  box-shadow: 0 0 18px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.h-title { font-size: 13px; font-weight: 600; color: var(--tx); letter-spacing: 0.01em; }
+.h-sub { font-size: 10px; color: var(--tx3); font-family: 'IBM Plex Mono', monospace; margin-top: 1px; }
+.h-time { margin-left: auto; font-size: 10px; color: var(--tx3); font-family: 'IBM Plex Mono', monospace; display: flex; align-items: center; gap: 7px; }
+.live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* MAIN */
+main { padding: 28px 32px; max-width: 1280px; margin: 0 auto; }
+
+/* STATS */
+.strip { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+.stat {
+  border-radius: 14px;
+  padding: 16px 20px;
+  min-width: 128px;
+  background: var(--glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  transition: border-color .2s, transform .2s;
+  animation: up .5s ease both;
+}
+.stat:hover { border-color: var(--border-hi); transform: translateY(-2px); }
+.stat::after { content:''; position:absolute; top:0; left:16px; right:16px; height:1px; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); }
+.stat.blue::before { content:''; position:absolute;inset:0; background:radial-gradient(ellipse at top left,rgba(59,130,246,0.09),transparent 65%); }
+.stat.green::before { content:''; position:absolute;inset:0; background:radial-gradient(ellipse at top left,rgba(5,232,152,0.09),transparent 65%); }
+.stat.amber::before { content:''; position:absolute;inset:0; background:radial-gradient(ellipse at top left,rgba(245,158,11,0.09),transparent 65%); }
+.stat.grey::before { content:''; position:absolute;inset:0; background:radial-gradient(ellipse at top left,rgba(107,144,184,0.06),transparent 65%); }
+.stat-num {
+  font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 5px;
+  letter-spacing: -0.03em;
+}
+.stat.blue .stat-num  { color: var(--blue); }
+.stat.green .stat-num { color: var(--green); }
+.stat.amber .stat-num { color: var(--amber); }
+.stat.grey .stat-num  { color: var(--tx2); }
+.stat-label { font-size: 9px; color: var(--tx3); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 500; }
+
+/* SECTION LABEL */
+.section-label {
+  font-size: 9px; color: var(--tx3); text-transform: uppercase; letter-spacing: 0.2em;
+  font-weight: 500; font-family: 'IBM Plex Mono', monospace;
+  margin-bottom: 12px; padding-left: 2px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content:''; flex:1; height:1px; background: var(--border); }
+
+/* GE CARD */
+.ge {
+  background: var(--glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color .25s, box-shadow .25s;
+  animation: up .45s ease both;
+}
+.ge:nth-child(2){animation-delay:.06s}.ge:nth-child(3){animation-delay:.12s}.ge:nth-child(4){animation-delay:.18s}
+@keyframes up { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.ge::after { content:''; position:absolute; top:0; left:24px; right:24px; height:1px; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent); }
+.ge:hover { border-color: var(--border-hi); box-shadow: 0 8px 32px rgba(0,0,0,0.25); }
+.ge.drift { border-color: var(--amber-bd); }
+.ge.drift::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; background: linear-gradient(90deg,transparent 10%,var(--amber) 50%,transparent 90%); opacity:.7; }
+
+.ge-head {
+  display: flex; align-items: center; gap: 14px;
+  padding: 15px 22px;
+  cursor: pointer; user-select: none;
+  transition: background .15s;
+}
+.ge-head:hover { background: rgba(255,255,255,0.018); }
+
+.chev-btn {
+  width: 20px; height: 20px; flex-shrink: 0;
+  border: 1px solid var(--border-hi); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--tx3); font-size: 7px;
+  transition: all .2s;
+}
+.open .chev-btn { background: var(--blue-bg); border-color: var(--blue-bd); color: var(--blue); transform: rotate(90deg); }
+
+.ge-name { font-size: 14px; font-weight: 600; color: var(--tx); flex: 1; }
+.ge-meta { font-size: 10px; color: var(--tx3); font-family: 'IBM Plex Mono', monospace; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 10px; font-weight: 400; letter-spacing: 0.05em;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.badge.ok { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+.badge.ok .badge-dot { background: var(--green); box-shadow: 0 0 7px var(--green); animation: blink 2s infinite; }
+.badge.warn { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
+.badge.warn .badge-dot { background: var(--amber); box-shadow: 0 0 7px var(--amber); }
+
+/* TABLE */
+.ge-divider { height: 1px; background: var(--border); }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+th {
+  padding: 9px 22px; text-align: left;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 400;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--tx3);
+  background: rgba(0,0,0,0.18);
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 13px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.025);
+  color: var(--tx2); vertical-align: middle;
+  font-family: 'IBM Plex Mono', monospace; font-weight: 300;
+  transition: background .12s;
+}
+td:first-child { font-family: 'Outfit', sans-serif; font-weight: 400; }
+td:nth-child(2) { color: var(--tx); font-weight: 400; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.018); }
+tr.drift-row td { background: rgba(245,158,11,0.03); }
+tr.drift-row:hover td { background: rgba(245,158,11,0.06); }
+td.drifted { color: var(--amber); }
+
+.pod-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--blue-bg); color: var(--blue);
+  border: 1px solid var(--blue-bd);
+  border-radius: 6px; padding: 3px 9px;
+  font-size: 10px; font-family: 'IBM Plex Mono', monospace; font-weight: 400;
+}
+.pod-tag-dot { width: 4px; height: 4px; background: var(--blue); border-radius: 50%; box-shadow: 0 0 5px var(--blue); }
+
+.drift-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--amber-bg); color: var(--amber);
+  border: 1px solid var(--amber-bd); border-radius: 4px;
+  padding: 1px 6px; font-size: 9px; margin-left: 8px;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
+.status-ok {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--green); font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+}
+.status-ok::before { content:''; width:5px;height:5px;background:var(--green);border-radius:50%;box-shadow:0 0 7px var(--green);animation:blink 2s infinite;flex-shrink:0; }
+.status-warn {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--amber); font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+}
+.status-warn::before { content:''; width:5px;height:5px;background:var(--amber);border-radius:50%;flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">H</div>
+  <div>
+    <div class="h-title">Horizon CPA &mdash; Image Drift Report</div>
+    <div class="h-sub">euc-cs-01.euc.lab &nbsp;&bull;&nbsp; euc</div>
+  </div>
+  <div class="h-time">
+    <div class="live-dot"></div>
+    2025-06-04 14:22:31
+  </div>
+</header>
+
+<main>
+
+  <div class="strip">
+    <div class="stat blue" style="animation-delay:.0s">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Entitlements</div>
+    </div>
+    <div class="stat green" style="animation-delay:.05s">
+      <div class="stat-num">2</div>
+      <div class="stat-label">In Sync</div>
+    </div>
+    <div class="stat amber" style="animation-delay:.1s">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Drift Detected</div>
+    </div>
+    <div class="stat grey" style="animation-delay:.15s">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Pools Scanned</div>
+    </div>
+  </div>
+
+  <div class="section-label">Global Entitlements</div>
+
+  <!-- GE 1: In Sync, 1 pool -->
+  <div class="ge open">
+    <div class="ge-head" onclick="tog(this.parentElement)">
+      <div class="chev-btn">&#9654;</div>
+      <div class="ge-name">Wim0LTSC-GE</div>
+      <div class="ge-meta">1 pool &nbsp;&middot;&nbsp; FEDERATION</div>
+      <div class="badge ok"><div class="badge-dot"></div>In Sync</div>
+    </div>
+    <div class="ge-body">
+      <div class="ge-divider"></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pod</th>
+              <th>Pool Name</th>
+              <th>Master Image</th>
+              <th>Snapshot</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pod-tag"><span class="pod-tag-dot"></span>Pod3</span></td>
+              <td>Windows 10 LTSC</td>
+              <td>EUC-Win10LTSC</td>
+              <td>v10.0</td>
+              <td><span class="status-ok">Synchronized</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GE 2: In Sync, 2 pools -->
+  <div class="ge open">
+    <div class="ge-head" onclick="tog(this.parentElement)">
+      <div class="chev-btn">&#9654;</div>
+      <div class="ge-name">Windows 10</div>
+      <div class="ge-meta">2 pools &nbsp;&middot;&nbsp; FEDERATION</div>
+      <div class="badge ok"><div class="badge-dot"></div>In Sync</div>
+    </div>
+    <div class="ge-body">
+      <div class="ge-divider"></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pod</th>
+              <th>Pool Name</th>
+              <th>Master Image</th>
+              <th>Snapshot</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pod-tag"><span class="pod-tag-dot"></span>Pod3</span></td>
+              <td>Windows 10</td>
+              <td>EUC-Win10-MI</td>
+              <td>v4.6.2</td>
+              <td><span class="status-ok">Synchronized</span></td>
+            </tr>
+            <tr>
+              <td><span class="pod-tag"><span class="pod-tag-dot"></span>Pod1/2</span></td>
+              <td>Windows 10</td>
+              <td>EUC-Win10-MI</td>
+              <td>v4.6.2</td>
+              <td><span class="status-ok">Synchronized</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GE 3: Drift example -->
+  <div class="ge drift open">
+    <div class="ge-head" onclick="tog(this.parentElement)">
+      <div class="chev-btn">&#9654;</div>
+      <div class="ge-name">Windows 11 Enterprise</div>
+      <div class="ge-meta">2 pools &nbsp;&middot;&nbsp; FEDERATION</div>
+      <div class="badge warn"><div class="badge-dot"></div>Drift Detected</div>
+    </div>
+    <div class="ge-body">
+      <div class="ge-divider"></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pod</th>
+              <th>Pool Name</th>
+              <th>Master Image</th>
+              <th>Snapshot</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="drift-row">
+              <td><span class="pod-tag"><span class="pod-tag-dot"></span>Pod3</span></td>
+              <td>Win11 Enterprise</td>
+              <td class="drifted">EUC-Win11-MI <span class="drift-tag">drift</span></td>
+              <td class="drifted">v2.1.0 <span class="drift-tag">drift</span></td>
+              <td><span class="status-warn">Out of Sync</span></td>
+            </tr>
+            <tr class="drift-row">
+              <td><span class="pod-tag"><span class="pod-tag-dot"></span>Pod1/2</span></td>
+              <td>Win11 Enterprise</td>
+              <td class="drifted">EUC-Win11-MI <span class="drift-tag">drift</span></td>
+              <td class="drifted">v2.0.8 <span class="drift-tag">drift</span></td>
+              <td><span class="status-warn">Out of Sync</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function tog(el) {
+  var body = el.querySelector('.ge-body');
+  var btn = el.querySelector('.chev-btn');
+  if (!body) return;
+  if (body.style.display === 'none') {
+    body.style.display = '';
+    el.classList.add('open');
+  } else {
+    body.style.display = 'none';
+    el.classList.remove('open');
+  }
+}
+</script>
+</body>
+</html>
